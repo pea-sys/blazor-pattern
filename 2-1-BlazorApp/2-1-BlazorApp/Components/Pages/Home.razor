@@ -1,0 +1,128 @@
+﻿@page "/"
+
+@using System.Globalization
+
+<p>今日は @DateTime.Now です。</p>
+<p>今日は@(DateTime.Now)です。</p> @* スペースを空けたくない場合はカッコで括る *@
+<p>今日は @DateTime.Now.ToString("ggyy年MM月dd日(dddd)", dtf) です。</p> @* 和暦表示 *@
+<p>指数表記 : @a.ToString("E2")</p>
+<p>固定小数点表記 : @b.ToString("F3")</p>
+<p>ゼロパディンク : @c.ToString("D8")</p> @* 00001234 *@
+<p>16進数表記 : @("&H" + c.ToString("X4"))</p> @* &H04D2 *@
+<p>特殊な通貨表記 : @d.ToString("C", nfi)</p> @* 1,234円 *@
+
+<input type="checkbox" @bind="isChecked" /> チェックボックス
+<p>@isChecked</p>
+
+<select>
+    @if (sa != null) foreach (string item in sa)
+        {
+            <option value="@item">@item</option>
+        }
+</select>
+
+<dl>
+    @if (dic != null)
+    {
+        @foreach (KeyValuePair<string, string> item in dic)
+        {
+            <dt>@item.Key</dt>
+            <dd>@item.Value</dd>
+        }
+    }
+</dl>
+
+<input type="text" @bind="name1" placeholder="名前を入力" />
+<p>@name1</p>
+
+<input type="text" @bind="name2" placeholder="名前を入力" @bind:event="oninput" />
+<p>@name2</p>
+
+<select @bind="selectedKey">
+    @foreach (var item in list)
+    {
+        <option value="@item.Key">@item.Value</option>
+    }
+</select>
+<p>@selectedKey</p>
+
+<button @onclick="btnGetMessage1_Click">メッセージ取得①</button>
+<button @onclick="btnGetMessage2_Click">メッセージ取得②</button>
+<button @onclick="btnGetMessage3_Click">メッセージ取得③</button>
+
+<button @onclick="@(() => Message = DateTime.Now.ToString())">メッセージ取得④</button>
+<button @onclick="@(e => Message = DateTime.Now.ToString())">メッセージ取得⑤</button>
+<p>メッセージ : @Message</p>
+
+<button @onclick='() => btnGetMessage_Click("Hello World ①")'>メッセージ取得①</button>
+<button @onclick='() => btnGetMessage_Click("Hello World ②")'>メッセージ取得②</button>
+<button @onclick='() => btnGetMessage_Click("Hello World ③")'>メッセージ取得③</button>
+
+<p>メッセージ : @Message</p>
+
+@code {
+    double a = -123.4567d;
+    double b = -987.6543d;
+    int c = 1234;
+    decimal d = 1234m;
+    NumberFormatInfo nfi = new CultureInfo("ja-JP").NumberFormat;
+    DateTimeFormatInfo dtf = new CultureInfo("ja-JP").DateTimeFormat;
+
+    string[] sa = ["Foo", "Bar", "Baz", "Qux"];
+    Dictionary<string, string> dic = new Dictionary<string, string>();
+
+    string name1 { get; set; } = "";
+    string name2 { get; set; } = "Nobuyuki";
+
+    bool isChecked { get; set; }
+
+    string selectedKey = "";
+    Dictionary<string, string> list = new Dictionary<string, string>()
+    {
+        {"key1", "value1"},
+        {"key2", "value2"},
+        {"key3", "value3"}
+    };
+    private string Message { get; set; } = "";
+
+    private void btnGetMessage1_Click()
+    {
+        Message = "Hello World " + DateTime.Now;
+    }
+    private void btnGetMessage2_Click(MouseEventArgs e)
+    {
+        Message = "Hello World " + DateTime.Now + " " + e.ShiftKey;
+    }
+    private async Task btnGetMessage3_Click()
+    {
+        await Task.Delay(3000);
+        Message = "Hello World " + DateTime.Now;
+    }
+
+
+    protected override void OnInitialized() // ページ初期化処理
+    {
+        nfi.CurrencyDecimalDigits = 0;                // 小数点以下表示桁数
+        nfi.CurrencyDecimalSeparator = ".";           // 小数点区切り子
+        nfi.CurrencyGroupSizes = new int[] { 3 };     // 区切り桁数
+        nfi.CurrencyGroupSeparator = ",";             // 桁区切り
+        nfi.CurrencySymbol = "円";
+        nfi.CurrencyPositivePattern = 1;              // 後ろに記号をつける
+        dtf.Calendar = new JapaneseCalendar();        // 西暦カレンダを利用する場合は GregorianCalendar
+
+        dic.Add("001-999", "佐藤");
+        dic.Add("009-876", "鈴木");
+        dic.Add("008-345", "田中");
+        dic.Add("003-535", "赤間");
+    }
+
+    private void btnGetMessage_Click(string message)
+    {
+        Message = message;
+    }
+
+
+
+
+}
+
