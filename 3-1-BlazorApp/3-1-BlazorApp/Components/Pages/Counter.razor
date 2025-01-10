@@ -1,0 +1,43 @@
+﻿@page "/counter"
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+
+
+@inject Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage.ProtectedBrowserStorage storage
+@inject NavigationManager nav
+
+@if (currentCount.HasValue)
+{
+    <p role="status">Current count: @currentCount</p>
+
+    <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+}
+else
+
+{
+    <p>データを取得中です…</p>
+}
+
+@code {
+    private int? currentCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await storage.GetAsync<int>("CurrentCount");
+        currentCount = result.Success ? result.Value : 0;
+    }
+
+    private async void IncrementCount()
+    {
+        currentCount++;
+        await storage.SetAsync("CurrentCount", currentCount!.Value);
+    }
+
+    private void BackToPreviewPage()
+    {
+        nav.NavigateTo("/Counter");
+    }
+}

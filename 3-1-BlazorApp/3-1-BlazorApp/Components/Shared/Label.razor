@@ -1,0 +1,19 @@
+﻿<span>@Text</span>
+
+@code {
+	private string _text = "";
+
+	[Parameter]
+	public string Text 
+	{
+		get 
+		{
+			return _text;
+		}
+		set 
+		{
+			this._text = value;
+			this.StateHasChanged();
+		} 
+	}
+}
